@@ -1,0 +1,127 @@
+clear all
+close all
+clc
+alpha=0.1;
+L=1;
+nx=10;
+ny=10;
+x=linspace(0,L,nx);
+y=linspace(0,L,ny);
+dx=L/(nx-1);
+dy=dx;
+T=ones(nx,ny);
+% Boundary Conditions
+T(:,1)=400;
+T(1,:)=600;
+T(:,nx)=800;
+T(ny,:)=900;
+% error=9e9;
+tol=1e-4;
+Told=T;
+T_prev_dt=Told;
+dt=0.01;
+nt=700;
+t=nt*dt;
+  k1=(alpha*dt/(dx)^2);
+   k2=(alpha*dt/(dy)^2);
+    term1=(1+2*k1+2*k2)^-1;
+    term2=k1*term1;
+    term3=k2*term1;
+    prompt=\'which method to be used? [1. Jacobi 2.Gauss-Seidal 3.SOR ]\';
+    method=input(prompt);
+    
+% Jacobi Method    
+    
+    
+    %time loop 
+
+if method ==1
+      iter=1;
+ for  k=1:nt
+    error=9e9;
+     while(error>tol)           %convergangce loop
+        for i=2:nx-1             %nodal loop
+             for j=2:ny-1
+                P=Told(i-1,j)+Told(i+1,j);
+                Q=Told(i,j-1)+Told(i,j+1);
+                T(i,j)=((term1*T_prev_dt(i,j))+(term2*P)+(term3*Q));
+                
+             end
+        end
+        error=max(max(abs(Told-T)))
+         Told=T;
+         iter=iter+1;
+     end
+    T_prev_dt=T; 
+    end
+ figure(1)
+contourf(x,y,T,\'showtext\',\'on\')
+colormap jet
+colorbar
+title_text=sprintf(\'Jacobi transient %d\',iter);
+title(title_text)
+pause(0.01)
+saveas(1,title_text)
+end
+
+% Gauss-Seidal Method
+
+if method ==2
+     iter=1;
+    for k=1:nt;
+        error=9e9;
+        while(error>tol)
+            for i=2:nx-1
+                for j=2:ny-1
+                    P=T(i-1,j)+Told(i+1,j);
+                    Q=T(i,j-1)+Told(i,j+1);
+                    T(i,j)=((term1*T_prev_dt(i,j))+(term2*P)+(term3*Q));
+                
+             end
+            end
+        error=max(max(abs(Told-T)))
+         Told=T;
+         iter=iter+1;
+        end
+    T_prev_dt=T; 
+   
+    end
+ figure(1)
+contourf(x,y,T,\'showtext\',\'on\')
+colormap jet
+colorbar
+title_text=sprintf(\'G-S transient %d\',iter);
+title(title_text)
+pause(0.01)
+end
+
+
+
+% SOR Method
+ iter=1;
+A=1.5;  %relaxation factor
+if method==3
+     for k=1:nt;
+        error=9e9;
+        while(error>tol)
+            for i=2:nx-1
+                for j=2:ny-1
+                    P=T(i-1,j)+Told(i+1,j);
+                    Q=T(i,j-1)+Told(i,j+1);
+                 T(i,j)=A*(T_prev_dt(i,j)*term1+((term2*P)+(term3*Q)))+(1-A)*T_prev_dt(i,j);
+             end
+        end
+        error=max(max(abs(Told-T)))
+        Told=T;
+        iter=iter+1;
+        end
+       T_prev_dt=T; 
+       end
+ figure(1)
+contourf(x,y,T,\'showtext\',\'on\')
+colormap jet
+colorbar
+title_text=sprintf(\'SOR G-S transient %d\',iter);
+title(title_text)
+pause(0.01)
+end
