@@ -1,0 +1,25 @@
+function out=jac_steady_state(nx,ny,T,dx,dy,k,tol,error,x,y)
+  Told=T;
+  jac_iter=1;
+  ct=1;
+  while(error>tol)
+  for i=2:nx-1
+    for j=2:ny-1
+    P=(Told(i-1,j)+Told(i+1,j))/(k*dx^2);
+    Q=(Told(i,j-1)+Told(i,j+1))/(k*dy^2);
+    T(i,j)=P+Q;  
+    end
+    end
+  error=max(max(abs(Told-T)))
+  Told=T;
+  jac_iter=jac_iter+1
+   figure (1)
+contourf(x,y,T,\'showtext\',\'on\')
+colorbar;
+colormap jet;
+text=sprintf(\'jacobi steady state %d.png\',ct);
+title(text);
+saveas(1,text);
+ct=ct+1;
+  end
+end
