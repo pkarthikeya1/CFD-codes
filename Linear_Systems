@@ -1,0 +1,80 @@
+clear all;
+close all;
+clc;
+D=[5 0 0; 0 9 0; 0 0 -7];
+A=[5 1 2; -3 9 4; 1 2 -7];
+B=[10; -14; 33];
+U=[0 1 2; 0 0 4; 0 0 0]
+L=[0 0 0; -3 0 0; 1 2 0];
+prompt='which method to be used?\n 1.Jacobi\n 2.Gauss-Seidal\n 3.SOR\n';
+method=input(prompt);
+    m=linspace(0.3,5,10)
+ for i=1:length(m)
+     D=m(i)*D;
+syms lambda
+Tjac=inv(D)*(L+U);
+T_GS=inv((L+D))*U;
+W=1.5;
+T_SOR=inv(D-W*L)*(W*U+(1-W)*D);
+x=ones(3,1);
+xold=x;
+ error1=9e9;
+tol=1e-4;
+% Solving the system using iterative techniques
+
+%Jacobi Method
+iter=1;
+if method==1
+    char_eq1=det(Tjac-lambda*eye(3));
+    eig_Tjac=vpasolve(char_eq1);
+    s_r_Tjac(i)=max(real(abs(eig_Tjac)));
+n=1;
+    while(error1>tol)
+    x=-inv(D)*(L+U)*xold+inv(D)*B;
+    error1=max(abs(abs(xold-x)));
+    error2(i)=max(abs(abs(xold-x)))
+    xold=x;
+     iter=iter+1;
+     n=n+1;
+    end
+    
+    figure(1)
+plot(m(i),s_r_Tjac(i),'*','color','b','linewidth',5);
+    hold on
+
+end
+
+
+% Gauss-Seidal Method
+if method==2
+    char_eq2=det(T_GS-lambda*eye(3));
+    eig_T_GS=vpasolve(char_eq2);
+    s_r_T_GS(i)=max(abs(abs(eig_T_GS)));
+
+while(error1>tol)
+    x=inv(D-L)*U*xold+inv(D-L)*B
+    error1=max(abs((xold-x)));
+    error2(i)=max(abs(abs(xold-x)));
+    xold=x;
+    iter=iter+1
+end
+plot(m(i),s_r_T_GS(i),'color','r','linewidth',5);
+    hold on
+end
+
+if method==3
+    char_eq3=det(T_SOR-lambda*eye(3));
+    eig_T_SOR=vpasolve(char_eq3);
+    s_r_T_SOR(i)=max(abs(abs(eig_T_SOR)));
+
+    while(error1>tol)
+        x=inv(D-W*L)*[W*U+(1-W)*D]*xold+W*inv(D-W*L)*B;
+        error1=max(abs(abs(xold-x)));
+        error2(i)=max(abs(abs(xold-x)));
+        xold=x;
+        iter=iter+1
+    end
+plot(m(i),s_r_T_SOR(i),'color','k','linewidth',5);
+    hold on
+end
+ end
