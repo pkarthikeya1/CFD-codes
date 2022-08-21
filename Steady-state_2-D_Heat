@@ -1,0 +1,42 @@
+clear all 
+close all
+clc
+A=1.5;
+L=1;
+nx=10;
+ny=nx;
+x=linspace(0,L,nx);
+y=linspace(0,L,ny);
+dx=L/(nx-1);
+dy=L/(ny-1);
+error=9e9; 
+tol=1e-4;
+k=2*(1/(dx^2)+1/(dy^2));
+% ##T_L=400;
+% ##T_R=800;
+% ##T_T=600;
+% ##T_B=900;
+T=ones(nx,ny);
+T(1:10,1)=400;
+T(end,:)=900;
+T(:,end)=800;
+T(1,:)=600;
+% refining edges
+T(1,1)=(900+400)/2 ;
+T(1,10)=(600+800)/2;
+T(10,1)=(400+900)/2;
+T(10,10)=(800+900)/2;
+prompt=\'which method to be used? (1.JACOBI 2.Gauss-Seidal  3.SOR_jac 4.SOR_GS)\';
+iterative_solver=input(prompt);
+if iterative_solver==1  
+jac_steady_state(nx,ny,T,dx,dy,k,tol,error,x,y);
+else if iterative_solver==2
+gs_steady_state(nx,ny,T,dx,dy,k,tol,error,x,y);
+else if iterative_solver==3
+SOR_jac(x,y,nx,ny,dx,dy,k,T,error,tol,A)
+else if iterative_solver==4
+SOR_gs(x,y,nx,ny,dx,dy,k,T,error,tol,A)
+end
+end
+end         
+end
