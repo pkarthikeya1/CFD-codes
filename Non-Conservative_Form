@@ -1,0 +1,133 @@
+function out=non_conservative_1d (n,c,x,dx,gamma,a,nt,th)
+
+rho=1-0.3146*x;
+t=1-0.2314*x;
+v=(0.1+1.09*x).*t.^0.5;
+
+for z=1:n
+  dt(z)=(c*dx)/(t(z)^0.5+v(z));
+end
+dt=min(dt);
+  
+  
+% outer time loop
+for k=1:nt
+  rho_old=rho;
+  t_old=t;
+  v_old=v;
+  
+ 
+  % predictor step
+   
+   
+   for e=2:n-1
+     dvdx=(v(e+1)-v(e))/dx;
+     drhodx=(rho(e+1)-rho(e))/dx;
+     dtdx=(t(e+1)-t(e))/dx;
+     dadx=(log(a(e+1))-log(a(e)))/dx;
+     
+     % continuity equation
+           
+      drhodt_p(e)=-rho(e)*dvdx-rho(e)*v(e)*dadx-v(e)*drhodx;
+      
+      % momentum equation
+      
+      dvdt_p(e)=-v(e)*dvdx-(1/gamma)*(dtdx+((t(e)/rho(e))*drhodx));
+      
+      % Energy equation
+      
+      dtdt_p(e)=-v(e)*dtdx-(gamma-1)*t(e)*(dvdx+v(e)*dadx);
+      
+      % soution update
+      rho(e)=rho(e)+drhodt_p(e)*dt;
+      v(e)=v(e)+dvdt_p(e)*dt;
+      t(e)=t(e)+dtdt_p(e)*dt;     
+      
+   
+     end  
+% corrector step
+
+for j=2:n-1
+  
+     dvdx=(v(j)-v(j-1))/dx;
+     drhodx=(rho(j)-rho(j-1))/dx;
+     dtdx=(t(j)-t(j-1))/dx;
+     dadx=(log(a(j))-log(a(j-1)))/dx;
+     
+     % continuity equation
+           
+      drhodt_c(j)=-rho(j)*dvdx-rho(j)*v(j)*dadx-v(j)*drhodx;
+      
+     % momentum equation
+     
+      dvdt_c(j)=-v(j)*dvdx-(1/gamma)*(dtdx+((t(j)/rho(j))*drhodx));
+      
+      % Energy equation
+      
+      dtdt_c(j)=-v(j)*dtdx-(gamma-1)*t(j)*(dvdx+v(j)*dadx);
+      
+      
+ end
+% average time derivatives
+
+      drhodt=0.5*(drhodt_p+drhodt_c);
+      dvdt=0.5*(dvdt_p+dvdt_c);
+      dtdt=0.5*(dtdt_p+dtdt_c);
+
+      
+      %final update
+     for l=2:n-1
+      rho(l)=rho_old(l)+drhodt(l)*dt;  
+      v(l)=v_old(l)+dvdt(l)*dt;
+      t(l)=t_old(l)+dtdt(l)*dt;
+     end
+     % Boundary conditions
+ 
+   % inlet
+  v(1)=2*v(2)-v(3);
+  
+  % outlet
+  v(n)=2*v(n-1)-v(n-2);
+  t(n)=2*t(n-1)-t(n-2);
+  rho(n)=2*rho(n-1)-rho(n-2);
+  
+  
+  
+    p=rho_old.*t_old;
+    Mach_no= v_old./(t_old).^0.5;
+    mass_flow_rate=rho_old.*a.*v_old;
+  
+  
+ % calculating values at throat
+     p_th(k)=p(th);
+     Mach_no_th(k)=Mach_no(th);
+     rho_th(k)=rho(th);
+     mass_flow_rate_th(k)=mass_flow_rate(th);     
+  
+end
+figure(3)
+subplot(4,1,1)
+plot(p_th,\'color\',\'r\')
+xlabel(\'no. of time steps\')
+ylabel(\'p/P_o\')
+
+subplot(4,1,2)
+plot(Mach_no_th,\'color\',\'b\')
+xlabel(\'no. of time steps\')
+ylabel(\'Mach Number\')
+
+subplot(4,1,3)
+plot(rho_th,\'color\',\'y\')
+xlabel(\'no. of time steps\')
+ylabel(\'Non dimensionalised density\')
+
+subplot(4,1,4)
+plot(mass_flow_rate_th,\'color\',\'c\')
+xlabel(\'no. of time steps\')
+ylabel(\'Non Dimensionalised Mass flow rate\');
+
+
+
+
+
+end
