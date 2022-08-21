@@ -1,0 +1,55 @@
+clear all
+close all
+clc
+%inputs for linear convection
+L=1;
+c=1;
+n=80; % number of nodes
+%initialize arrays
+x=linspace(0,L,n);
+u=ones(1,n);
+##  dx=L/(n-1)
+ dx=x(2)-x(1);
+%calculations and defining start and end posiions for step function
+for (j=1:20)
+if (x(j)>=0.1 && x(j)<=0.3)
+u(j)=2;
+else
+u(j)=1;
+endif
+endfor
+
+%BC
+uold=u;
+u_initial=u;
+grid on
+nt=40;
+t_t=0.4;
+ ct=1;
+for k=1:nt  %time loop
+ dt=(t_t/nt);
+% space loop
+ for i=2:n
+ u(i)=uold(i)-[(c*dt/dx)*(uold(i)-uold(i-1))]; 
+endfor
+  % update old values
+  uold=u;
+  plot(x,u,'g')
+  axis([0 1 0 2])
+  xlabel('x_ length of domain')
+ ylabel('velocity')
+pause(0.001)
+text=sprintf('linear_convection_%d.png',ct);
+title('Linear convection with 160 nodes');
+ saveas(1, text);
+  ct=ct+1;
+endfor
+% plot for comparing initial and final values
+figure 2
+plot(x, u_initial,'r')
+hold on
+plot(x, u,'-@')
+ axis([0 1 0 2])
+xlabel('x_ length of domain');
+ylabel('velocity');
+legend('initial','final')
