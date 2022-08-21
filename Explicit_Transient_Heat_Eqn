@@ -1,0 +1,45 @@
+clear all
+close all
+clc
+L=1;
+nx=10;
+ny=10;
+x=linspace(0,L,nx);
+y=linspace(0,L,ny);
+dx=L/(nx-1);
+dy=dx;
+T=ones(nx,ny);
+T(:,1)=400;
+T(1,:)=600;
+T(:,nx)=800;
+T(ny,:)=900;
+alpha=0.1;
+T_prev_dt=T;
+dt=0.001;
+nt=100;
+% error=100;
+% tol=1e-4;
+Told=T;
+k1=(alpha*dt)/(dx^2);
+k2=(alpha*dt)/(dy^2);
+tic;
+iter=0;
+ct=1;
+for k=1:nt;
+        for i=2:nx-1
+            for j=2:ny-1;
+                T(i,j)=Told(i,j)+k1*(Told(i-1,j)-2*Told(i,j)+Told(i+1,j))+k2*(Told(i,j-1)-2*Told(i,j)+Told(i,j+1));
+            end
+        end
+        iter=iter+1;
+        Told=T;
+        computational_time=toc();
+         figure(1)
+           contourf(x,y,T,\'showtext\',\'on\')
+           colorbar
+           colormap jet
+           title_text=sprintf(\'no. of iterations %d.png\',ct);
+           title(title_text)
+           saveas(1,title_text)
+           ct=ct+1;
+end
