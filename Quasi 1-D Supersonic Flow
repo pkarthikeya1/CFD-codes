@@ -1,0 +1,22 @@
+clear all
+close all
+clc
+% inputs
+n=481;
+c=0.5;
+x=linspace(0,3,n);
+dx=x(2)-x(1);
+gamma=1.4;
+% area
+a=1+2.2*(x-1.5).^2;
+nt=8000;
+th=(n-1)/2;
+
+prompt=\'which form to be used? 1.Non-Conservative 2. Conservative\';
+solver=input(prompt);
+if solver==1;
+  non_conservative_1d (n,c,x,dx,gamma,a,nt,th)
+else if solver==2;
+      conservative_1d (x,dx,n,gamma,a,nt,th,c)
+ end
+end
