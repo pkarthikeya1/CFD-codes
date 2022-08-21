@@ -1,0 +1,27 @@
+function out=SOR_gs(x,y,nx,ny,dx,dy,k,T,error,tol,A)
+Told=T;
+SOR_iter=4;
+iteration=1;
+ct=1;
+while(error>tol)
+for i=2:nx-1;
+  for j=2:ny-1;
+  p=(T(i-1,j)+Told(i+1,j))/(k*dx^2);
+  q=(T(i,j-1)+Told(i,j+1))/(k*dy^2);
+  T_GS(i,j)=(p+q);
+  T(i,j)=(1-A)*Told(i,j)+A*T_GS(i,j);
+end
+end
+error=max(max(abs(T-Told)));
+Told=T;
+iteration=iteration+1;
+figure (1)
+contourf(x,y,T,\'showtext\',\'on\');
+colorbar;
+colormap jet;
+text=sprintf(\'SOR gs steady state %d.png\',ct);
+title(text);
+saveas(1,text);
+ct=ct+1;
+end
+end
